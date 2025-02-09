@@ -15,6 +15,8 @@ const temperature = ref(settingStore.temperature ?? 0.5)
 
 const top_p = ref(settingStore.top_p ?? 1)
 
+const model = ref(settingStore.model ?? '')
+
 function updateSettings(options: Partial<SettingsState>) {
   settingStore.updateSetting(options)
   ms.success(t('common.success'))
@@ -30,6 +32,15 @@ function handleReset() {
 <template>
   <div class="p-4 space-y-5 min-h-[200px]">
     <div class="space-y-6">
+      <div class="flex items-center space-x-4">
+        <span class="flex-shrink-0 w-[120px]">{{ $t('setting.model') }}</span>
+        <div class="flex-1">
+          <NSelect v-model:value="model" :options="modelOptions" />
+        </div>
+        <NButton size="tiny" text type="primary" @click="updateSettings({ model })">
+          {{ $t('common.save') }}
+        </NButton>
+      </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[120px]">{{ $t('setting.role') }}</span>
         <div class="flex-1">

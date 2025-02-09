@@ -44,10 +44,18 @@ export default defineConfig((env) => {
       },
     },
     build: {
+      incremental: true,
       reportCompressedSize: false,
       sourcemap: false,
       commonjsOptions: {
         ignoreTryCatch: false,
+      },
+      rollupOptions: {
+        node: {
+          global: true,
+          __dirname: true,
+          __filename: true,
+        },
       },
     },
   }
