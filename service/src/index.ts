@@ -1,7 +1,7 @@
 import express from 'express'
 import type { RequestProps } from './types'
-import type { ChatMessage } from './chatgpt'
-import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
+import { ChatMessage } from './chatgpt'
+import { chatConfig, chatReplyProcess, currentModel, getModels } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
@@ -77,6 +77,16 @@ router.post('/verify', async (req, res) => {
       throw new Error('密钥无效 | Secret key is invalid')
 
     res.send({ status: 'Success', message: 'Verify successfully', data: null })
+  }
+  catch (error) {
+    res.send({ status: 'Fail', message: error.message, data: null })
+  }
+})
+
+router.get('/models', async (req, res) => {
+  try {
+    const response = await getModels()
+    res.send({ status: 'Success', message: 'Get models successfully', data: response})
   }
   catch (error) {
     res.send({ status: 'Fail', message: error.message, data: null })

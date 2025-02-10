@@ -233,6 +233,32 @@ function currentModel(): ApiModel {
   return apiModel
 }
 
+async function getModels() {
+  const API_BASE_URL = process.env.OPENAI_API_BASE_URL
+
+  const urlModels = `${API_BASE_URL}/v1/models`
+
+  const headers = {
+    'Content-Type': 'application/json',
+  }
+
+  const options = {} as SetProxyOptions
+  setupProxy(options)
+
+  try {
+    // 获取已使用量
+    const modelResponse = await options.fetch(urlModels, { headers })
+    if (!modelResponse.ok)
+      throw new Error('获取模型列表失败')
+    const models = await modelResponse.json() as string[]
+    return Promise.resolve(models)
+  }
+  catch (error) {
+    global.console.log(error)
+    return Promise.resolve('-')
+  }
+}
+
 export type { ChatContext, ChatMessage }
 
-export { chatReplyProcess, chatConfig, currentModel }
+export { chatReplyProcess, chatConfig, currentModel, getModels }

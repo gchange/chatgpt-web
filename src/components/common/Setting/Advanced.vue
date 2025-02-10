@@ -1,9 +1,14 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { NButton, NInput, NSlider, useMessage } from 'naive-ui'
 import { useSettingStore } from '@/store'
 import type { SettingsState } from '@/store/modules/settings/helper'
 import { t } from '@/locales'
+import { fetchModels } from '@/api'
+
+interface ModelsReponse {
+  data: string[]
+}
 
 const settingStore = useSettingStore()
 
@@ -17,6 +22,8 @@ const top_p = ref(settingStore.top_p ?? 1)
 
 const model = ref(settingStore.model ?? '')
 
+const models = ref([])
+
 function updateSettings(options: Partial<SettingsState>) {
   settingStore.updateSetting(options)
   ms.success(t('common.success'))
@@ -27,6 +34,26 @@ function handleReset() {
   ms.success(t('common.success'))
   window.location.reload()
 }
+
+const fetchModelOptions = async () => {
+  try {
+    const res = await fetchModels<ModelsReponse>()
+    models.value = res.data.map((model) => ({
+      value: model,
+      text: model,
+    }))
+  } catch (error) {
+    console.error('Error fetching model options:', error)
+  }
+}
+
+onMounted(() => {
+  fetchModelOptions()
+})
+
+watch(model, (newModel) => {
+  updateSettings({ model: newModel })
+})
 </script>
 
 <template>
@@ -34,12 +61,11 @@ function handleReset() {
     <div class="space-y-6">
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[120px]">{{ $t('setting.model') }}</span>
-        <div class="flex-1">
-          <NSelect v-model:value="model" :options="modelOptions" />
-        </div>
-        <NButton size="tiny" text type="primary" @click="updateSettings({ model })">
-          {{ $t('common.save') }}
-        </NButton>
+        <select id="model-select" v-model="model">
+          <option v-for="option in models" :key="option.value" :value="option.value">
+            {{ option.text }}
+          </option>
+        </select>
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[120px]">{{ $t('setting.role') }}</span>
